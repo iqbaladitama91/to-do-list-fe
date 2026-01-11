@@ -1,28 +1,116 @@
 <main class="dark:bg-[#252525]">
-  <div class="mx-20 relative flex pt-10 flex-col min-h-screen items-center">
+  <div class="mx-20 relative max-w-[750px] mx-auto flex pt-10 flex-col min-h-screen items-center">
     <h1 class="text-2xl dark:text-white font-semibold text-center mb-[18px]">To-Do List</h1>
     <div class="w-full flex gap-4 max-h-[38px]">
-        <div class="flex w-full justify-between py-3 items-center border-[#C3C1E5] border-2 px-4 rounded-[5px]">
-          <input type="text" placeholder="Search note..." class="outline-none h-4 dark:placeholder:text-white">
-          <img src="assets/icons/search-icon.svg" width="21" height="21" alt="search-icon">
-        </div>
-        <button class="bg-[#6C63FF] text-white px-[10px] font-semibold py-2 rounded-[5px] gap-5 flex items-center">ALL <img src="assets/icons/chevron-down-white.svg" width="16" height="12" alt="arrow-down-icon"></button>
-        <button class="bg-[#6C63FF] text-white px-[10px] py-2 rounded-[5px] flex items-center" (click)="toggleTheme()">
-            @if (darkMode()) {
-                <img src="assets/icons/sun-white-icon.svg" width="16" height="12" alt="sun-icon">
-            } @else {
-                <img src="assets/icons/moon-white-icon.svg" width="16" height="12" alt="moon-icon">
-            }
-        </button>
-    </div>
-  
-    @if (toDoList().length === 0) {
-      <div class="w-full flex justify-center flex-col items-center flex-1">
-          <img src="assets/images/detective.svg" class="w-[221px] dark:hidden h-auto" alt="detective-icon">
-          <img src="assets/images/detective-dark.svg" class="w-[221px] hidden dark:block h-auto" alt="detective-icon">
-          <p class="text-2xl dark:text-white font-semibold">Empty</p>
+      <div
+        class="flex w-full justify-between py-3 items-center border-[#C3C1E5] border-2 px-4 rounded-[5px]"
+      >
+        <input
+          type="text"
+          placeholder="Search note..."
+          class="outline-none h-4 dark:placeholder:text-white"
+        />
+        <img src="assets/icons/search-icon.svg" width="21" height="21" alt="search-icon" />
       </div>
+      <button
+        class="bg-[#6C63FF] text-white px-[10px] font-semibold py-2 rounded-[5px] gap-5 flex items-center"
+      >
+        ALL
+        <img
+          src="assets/icons/chevron-down-white.svg"
+          width="16"
+          height="12"
+          alt="arrow-down-icon"
+        />
+      </button>
+      <button
+        class="bg-[#6C63FF] cursor-pointer text-white px-[10px] py-2 rounded-[5px] flex items-center"
+        (click)="toggleTheme()"
+      >
+        @if (darkMode()) {
+        <img src="assets/icons/sun-white-icon.svg" width="16" height="12" alt="sun-icon" />
+        } @else {
+        <img src="assets/icons/moon-white-icon.svg" width="16" height="12" alt="moon-icon" />
+        }
+      </button>
+    </div>
+
+    @if (toDoList().length === 0) {
+    <div class="w-full flex justify-center flex-col items-center flex-1">
+      <img
+        src="assets/images/detective.svg"
+        class="w-[221px] dark:hidden h-auto"
+        alt="detective-icon"
+      />
+      <img
+        src="assets/images/detective-dark.svg"
+        class="w-[221px] hidden dark:block h-auto"
+        alt="detective-icon"
+      />
+      <p class="text-2xl dark:text-white font-semibold">Empty</p>
+    </div>
+    } @else {
+    <ul class="w-[75%]">
+      @for (item of toDoList(); track $index) {
+      <li class="flex items-start border-b border-[#6C63FF] py-[17px] justify-between w-full">
+        <div class="flex items-center gap-3">
+          <label for="{{ item.id }}">
+            <div
+              [ngClass]="{ 'bg-[#6C63FF]': item.completed }"
+              class="w-[26px] h-[26px] border border-[#6C63FF] rounded-[2px] transition-all"
+            ></div>
+          </label>
+          <input
+            type="checkbox"
+            id="{{ item.id }}"
+            class="hidden"
+            [value]="item.completed"
+            (change)="handleCheckboxChange(item.id)"
+          />
+          <p [ngClass]="{ 'line-through': item.completed }" class="text-[20px] dark:text-white">
+            {{ item.title }}
+          </p>
+        </div>
+      </li>
+
+      }
+    </ul>
     }
-    <button class="bg-[#6C63FF] absolute right-0 bottom-5 text-white w-[50px] h-[50px] rounded-full p-[13px] flex items-center"><img src="assets/icons/plus-icon-white.svg" width="24" height="24" alt="plus-icon"></button>
+    <button
+      (click)="handleShowModal(true)"
+      class="bg-[#6C63FF] absolute right-0 bottom-5 text-white w-[50px] h-[50px] rounded-full p-[13px] flex items-center"
+    >
+      <img src="assets/icons/plus-icon-white.svg" width="24" height="24" alt="plus-icon" />
+    </button>
   </div>
 </main>
+
+@if (showModal()) {
+<div
+  class="absolute z-[10] top-0 left-0 flex justify-center items-center w-full h-screen bg-black/50"
+>
+  <div class="bg-white rounded-xl w-[500px] py-[18px] px-[30px]">
+    <h1 class="font-bold text-2xl mb-6 text-center">NEW NOTE</h1>
+    <input
+      type="text"
+      [formControl]="newTodoList"
+      placeholder="Input Your Note"
+      class="w-full border border-[#C3C1E5] rounded px-3 py-2"
+    />
+    <div class="w-full flex mt-32 justify-between items-center">
+      <button
+        (click)="handleShowModal(false)"
+        class="border cursor-pointer border-[#6C63FF] rounded-[5px] text-[#6C63FF] py-[10px] px-[22px]"
+      >
+        Cancel
+      </button>
+      <button
+        (click)="handleSubmitData()"
+        class="border cursor-pointer bg-[#6C63FF] rounded-[5px] border-white text-white py-[10px] px-[22px]"
+      >
+        Apply
+      </button>
+    </div>
+  </div>
+</div>
+}
